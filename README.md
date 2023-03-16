@@ -47,69 +47,70 @@ Plot the performance plot
 Evaluate the model with the testing data.
 
 ## PROGRAM
-
-
-
 ~~~
-### To Read CSV file from Google Drive :
-
 from google.colab import auth
 import gspread
 from google.auth import default
 import pandas as pd
 
-## To train and test 
-from sklearn.model_selection import train_test_split
-
-## To scale 
-from sklearn.preprocessing import MinMaxScaler
-
-## To create a neural network model
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-
-### Authenticate User:
-
 auth.authenticate_user()
 creds, _ = default()
 gc = gspread.authorize(creds)
 
-### Open the Google Sheet and convert into DataFrame :
+worksheet = gc.open('dlexp1').sheet1
+
 
 worksheet = gc.open('dlexp1').sheet1
+
 rows = worksheet.get_all_values()
-df = pd.DataFrame(rows[1:], columns = rows[0])
 
+df = pd.DataFrame(rows[1:], columns=rows[0])
 
-df = df.astype({'Input':'float'})
-df = df.astype({'Output':'float'})
-
+df = df.astype({'input':'float'})
+df = df.astype({'output':'float'})
 df
 
-X = df[['Input']].values
-y = df[['Output']].values
+import pandas as pd
+from sklearn.model_selection import train_test_split
+# To scale
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+X = df[['input']].values
+y = df[['output']].values
 
 X
-y
 
-X_train,X_test,y_train,y_test= train_test_split(X,y,test_size = 0.4, random_state =35)
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size = 0.33,random_state=33)
 Scaler = MinMaxScaler()
 Scaler.fit(X_train)
 X_train1 = Scaler.transform(X_train)
-ai = Sequential([Dense(5 , activation = 'relu') ,Dense(10,activation = 'relu'), Dense(1)])
-ai.compile(optimizer = 'rmsprop' , loss = 'mse')
-ai.fit(X_train1 , y_train,epochs = 2200)
+model = Sequential([
+    Dense(5,activation = 'relu'),
+    Dense(10,activation = 'relu'),
+    Dense(1)
+])
+model.compile(optimizer='rmsprop',loss = 'mse')
 
-loss_df = pd.DataFrame(ai.history.history)
+model.fit(X_train1,y_train,epochs=2200)
+loss_df = pd.DataFrame(model.history.history)
 loss_df.plot()
+X_test1 = Scaler.transform(X_test)
+model.evaluate(X_test1,y_test)
+model.evaluate(X_test1,y_test)
 
-X_test1 =Scaler.transform(X_test)
-ai.evaluate(X_test1,y_test)
-X_n1=[[4]]
-X_n1_1=Scaler.transform(X_n1)
-ai.predict(X_n1_1)
+## new prediction
+X_n1 = [[4]]
+X_n1_1 = Scaler.transform(X_n1)
+model.predict(X_n1_1)
 
 ~~~
+
+
+
+
+
 
 ## Dataset Information
 
